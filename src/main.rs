@@ -75,18 +75,16 @@ fn validate_csv_file(filename: &str) -> Result<(), csv::Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use csv::Writer;
-    use std::io::{self, Result as IoResult, Write};
+    use std::io::{self, Write};
     use tempfile::NamedTempFile;
 
     fn create_temp_csv_file(records: Vec<Vec<&str>>) -> io::Result<NamedTempFile> {
         let mut file = NamedTempFile::new()?;
         {
-            let mut writer = Writer::from_writer(&file);
+            let writer = file.as_file_mut();
             for record in records {
-                writer.write_record(record)?;
+                writeln!(writer, "{}", record.join(","))?;
             }
-            writer.flush()?;
         }
         Ok(file)
     }
